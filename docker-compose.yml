@@ -1,0 +1,110 @@
+version: "3.7"
+
+services:
+  vault:
+    container_name: vault
+    hostname: vault
+    image: vaultwarden/server:testing #beta
+    image: vaultwarden/server:latest #stable
+    restart: always
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      - DATABASE_URL=postgresql://vault:changethis@vaultdb:5432/vault
+      - INVITATIONS_ALLOWED=false
+      - SIGNUPS_ALLOWED=true
+      - SIGNUPS_DOMAINS_WHITELIST=autistici.org,msgsafe.io,cock.li,mailfence.com,posteo.net,posteo.de,courvix.com,kolabnow.com,soverin.net,thexyz.com,countermail.com,runbox.com,hrzn.email
+      - SIGNUPS_VERIFY=true
+      - SIGNUPS_VERIFY_RESEND_LIMIT=3
+      - SIGNUPS_VERIFY_RESEND_TIME=3600
+      - EMAIL_EXPIRATION_TIME=300
+      - EMAIL_ATTEMPTS_LIMIT=3
+      - ICON_DOWNLOAD_TIMEOUT=10
+      - DB_CONNECTION_RETRIES=10
+      #- EVENT_CLEANUP_SCHEDULE="0 10 0 * * *"
+      #- EMERGENCY_REQUEST_TIMEOUT_SCHEDULE="0 7 * * * *"
+      #- EMERGENCY_NOTIFICATION_REMINDER_SCHEDULE="0 3 * * * *"
+      #- INCOMPLETE_2FA_SCHEDULE="30 * * * * *"
+      #- TRASH_PURGE_SCHEDULE="0 5 0 * * *"
+      #- SEND_PURGE_SCHEDULE="0 5 * * * *"
+      #- JOB_POLL_INTERVAL_MS=30000
+      #- DISABLE_ICON_DOWNLOAD=false
+      #- ICON_BLACKLIST_NON_GLOBAL_IPS=true
+      #- ICON_BLACKLIST_REGEX='^(192\.168\.0\.[0-9]+|192\.168\.1\.[0-9]+)$'
+      #- DISABLE_2FA_REMEMBER=true
+      - ADMIN_TOKEN=
+      - DISABLE_ADMIN_TOKEN=true
+      - WEBSOCKET_ENABLED=false
+      - PUSH_ENABLED=true
+      - PUSH_INSTALLATION_ID=changethis
+      - PUSH_INSTALLATION_KEY=changethis
+      - DOMAIN=changethis
+      #- YUBICO_CLIENT_ID=
+      #- YUBICO_SECRET_KEY=
+      - ROCKET_LIMITS={json=10485760}
+      - ROCKET_WORKERS=4
+      - SMTP_HOST=changethis
+      - SMTP_FROM=changethis
+      - SMTP_PORT=465
+      - SMTP_SECURITY=force_tls
+      - SMTP_USERNAME=changethis
+      - SMTP_PASSWORD=changethis
+      - SMTP_EMBED_IMAGES=false
+      - SHOW_PASSWORD_HINT=false
+      - PASSWORD_ITERATIONS=600000
+      - INCOMPLETE_2FA_TIME_LIMIT=3
+      - TRASH_AUTO_DELETE_DAYS=7
+      - USER_ATTACHMENT_LIMIT=10
+      - ORG_ATTACHMENT_LIMIT=50
+      - INVITATION_EXPIRATION_HOURS=120
+      - INVITATION_ORG_NAME=changethis
+      - PASSWORD_HINTS_ALLOWED=false
+      - AUTHENTICATOR_DISABLE_TIME_DRIFT=true
+      - ADMIN_SESSION_LIFETIME=1
+      - ADMIN_RATELIMIT_SECONDS=300
+      - ADMIN_RATELIMIT_MAX_BURST=3
+      - LOGIN_RATELIMIT_SECONDS=60
+      - LOGIN_RATELIMIT_MAX_BURST=10      
+      #- DUO_IKEY=
+      #- DUO_SKEY=
+      #- DUO_HOST=
+      #- WEB_VAULT_ENABLED=false
+      - USE_SYSLOG=false
+      - EXTENDED_LOGGING=false
+      - IP_HEADER=X-Real-IP
+      - EMERGENCY_ACCESS_ALLOWED=true
+      - SENDS_ALLOWED=true
+      - EVENTS_DAYS_RETAIN=7
+      - HIBP_API_KEY=changethis
+    ports:
+      - '127.0.0.1:8082:80'
+    depends_on:
+      - vaultdb
+    volumes:
+      - ./vaultdata:/data
+      #- ./images/logo-dark@2x.png:/web-vault/images/logo-dark@2x.png
+      #- ./images/logo-white@2x.png:/web-vault/images/logo-white@2x.png
+      #- ./images/vault-icon-white.png:/web-vault/images/icon-white.png
+      #- ./images/favicon-16x16.png:/web-vault/images/favicon-16x16.png
+      #- ./images/favicon-32x32.png:/web-vault/images/favicon-32x32.png
+
+  vaultdb:
+    container_name: vaultdb
+    hostname: vaultdb
+    image: postgres:15
+    restart: always
+    ports:
+      - '127.0.0.1:5433:5432'
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      - ./vaultdb:/var/lib/postgresql/data
+      - ./vaultbackup:/backup
+    environment:
+      - POSTGRES_DB=changethis
+      - POSTGRES_USER=changethis
+      - POSTGRES_PASSWORD=changethis
+
+volumes:
+  vaultdb:
+  vaultbackup:
